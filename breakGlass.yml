@@ -1,0 +1,11 @@
+| where TimeGenerated > ago(1h)
+// Looking for sucessful and failed activity on the 2 breakglass accounts only
+| extend UPN = tostring(UserPrincipalName)
+| extend City = tostring(LocationDetails.city)
+| extend State = tostring(LocationDetails.state)
+| extend Country_Region = tostring(LocationDetails.countryOrRegion)
+| where UPN == "natwestventures.4493@natwestventures.onmicrosoft.com" or UPN == "natwestventures.492e@natwestventures.onmicrosoft.com"
+| where ResultType == 0 or ResultType == 50074 or ResultType == 50126
+| summarize count() by Identity, UserPrincipalName, OperationName, City, State, Country_Region, IPAddress, ResourceDisplayName, AADTenantId, ResultType, ResultDescription, ConditionalAccessStatus
+| project-away count_
+| extend AccountCustomEntity = Identity, IPCustomEntity = IPAddress, HostCustomEntity = AADTenantId, ResultType = ResultType, ResultDescription = ResultDescription, ConditionalAccessStatus = ConditionalAccessStatus
